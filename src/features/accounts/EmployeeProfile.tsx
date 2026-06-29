@@ -13,7 +13,7 @@ export function EmployeeProfile() {
   );
   const user = (data?.[0] ?? []).find((u) => u.id === uid) ?? null;
   const role = (data?.[1] ?? []).find((r) => r.id === user?.role_id);
-  const tasks = (data?.[2] ?? []).filter((t) => t.assignee_id === uid);
+  const tasks = (data?.[2] ?? []).filter((t) => t.assignee_ids.includes(uid));
   const onlineIds = data?.[3] ?? [];
   const projects = data?.[4] ?? [];
 

@@ -45,7 +45,7 @@ export function KanbanBoard() {
   const [form, setForm] = useState({
     title: "",
     board_id: 1,
-    assignee_id: 0,
+    assignee_ids: [] as number[],
     credit: 3,
     priority: "normal" as Task["priority"],
   });
@@ -59,12 +59,12 @@ export function KanbanBoard() {
 
   const addTask = async () => {
     if (!form.title.trim()) return;
-    const assignee = form.assignee_id || users[0]?.id || null;
+    const assignees = form.assignee_ids.length ? form.assignee_ids : users[0] ? [users[0].id] : [];
     const id = await api.saveTask({
       project_id: projectId,
       board_id: form.board_id,
       title: form.title,
-      assignee_id: assignee,
+      assignee_ids: assignees,
       credit: form.credit,
       priority: form.priority,
     });
@@ -76,7 +76,8 @@ export function KanbanBoard() {
         board_id: form.board_id,
         title: form.title,
         description: null,
-        assignee_id: assignee,
+        assignee_id: assignees[0] ?? null,
+        assignee_ids: assignees,
         assigner_id: user?.id ?? null,
         start_at: null,
         due_at: null,
@@ -146,7 +147,9 @@ export function KanbanBoard() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
                 {colTasks.map((t) => {
-                  const assignee = users.find((u) => u.id === t.assignee_id);
+                  const assignees = (t.assignee_ids.length ? t.assignee_ids : t.assignee_id ? [t.assignee_id] : [])
+                    .map((aid) => users.find((u) => u.id === aid))
+                    .filter((u): u is NonNullable<typeof u> => !!u);
                   const pr = PRIORITY[t.priority];
                   return (
                     <div
@@ -163,7 +166,13 @@ export function KanbanBoard() {
                       </div>
                       <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 11 }}>{t.title}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        {assignee && <Avatar id={assignee.id} name={assignee.full_name} size={24} />}
+                        <div style={{ display: "flex" }}>
+                          {assignees.map((a, i) => (
+                            <div key={a.id} style={{ marginLeft: i === 0 ? 0 : -8 }} title={a.full_name}>
+                              <Avatar id={a.id} name={a.full_name} size={24} />
+                            </div>
+                          ))}
+                        </div>
                         <div style={{ flex: 1 }} />
                         <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "var(--faint)" }}>
                           <IconPaperclip size={13} /> 2
@@ -214,12 +223,26 @@ export function KanbanBoard() {
               ))}
             </select>
           </Labeled>
-          <Labeled label="Atanan">
-            <select className="field" value={form.assignee_id} onChange={(e) => setForm({ ...form, assignee_id: Number(e.target.value) })}>
+          <Labeled label="Atananlar (birden fazla seçilebilir)">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 132, overflowY: "auto", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px" }}>
               {users.map((u) => (
-                <option key={u.id} value={u.id}>{u.full_name}</option>
+                <label key={u.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={form.assignee_ids.includes(u.id)}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        assignee_ids: e.target.checked
+                          ? [...f.assignee_ids, u.id]
+                          : f.assignee_ids.filter((id) => id !== u.id),
+                      }))
+                    }
+                  />
+                  {u.full_name}
+                </label>
               ))}
-            </select>
+            </div>
           </Labeled>
           <Labeled label="Öncelik">
             <select className="field" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value as Task["priority"] })}>

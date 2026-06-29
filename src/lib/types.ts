@@ -97,7 +97,8 @@ export interface Task {
   board_id: number;
   title: string;
   description: string | null;
-  assignee_id: number | null;
+  assignee_id: number | null; // birincil atanan (geri uyumluluk; assignee_ids[0])
+  assignee_ids: number[]; // göreve atanan tüm kişiler
   assigner_id: number | null;
   start_at: string | null;
   due_at: string | null;

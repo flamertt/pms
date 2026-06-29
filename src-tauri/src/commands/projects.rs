@@ -98,6 +98,14 @@ pub fn list_statuses(db: State<Db>) -> CmdResult<Vec<TaskStatus>> {
     Ok(rows.collect::<rusqlite::Result<_>>()?)
 }
 
+/// Bir görevin atanan kişileri (tam liste).
+fn task_assignees(conn: &Connection, task_id: i64) -> rusqlite::Result<Vec<i64>> {
+    let mut stmt =
+        conn.prepare("SELECT user_id FROM task_assignees WHERE task_id=?1 ORDER BY user_id")?;
+    let rows = stmt.query_map([task_id], |r| r.get::<_, i64>(0))?;
+    rows.collect()
+}
+
 fn row_to_task(r: &rusqlite::Row) -> rusqlite::Result<Task> {
     Ok(Task {
         id: r.get(0)?,
@@ -106,6 +114,7 @@ fn row_to_task(r: &rusqlite::Row) -> rusqlite::Result<Task> {
         title: r.get(3)?,
         description: r.get(4)?,
         assignee_id: r.get(5)?,
+        assignee_ids: Vec::new(), // list_tasks içinde doldurulur
         assigner_id: r.get(6)?,
         start_at: r.get(7)?,
         due_at: r.get(8)?,
@@ -120,7 +129,7 @@ pub fn list_tasks(db: State<Db>, project_id: Option<i64>) -> CmdResult<Vec<Task>
     let conn = db.0.lock().unwrap();
     let sql = "SELECT id,project_id,board_id,title,description,assignee_id,assigner_id,\
         start_at,due_at,credit,position,priority FROM tasks";
-    let tasks = match project_id {
+    let mut tasks = match project_id {
         Some(pid) => {
             let mut stmt = conn.prepare(&format!("{sql} WHERE project_id=?1 ORDER BY position"))?;
             let rows = stmt.query_map([pid], row_to_task)?;
@@ -132,6 +141,17 @@ pub fn list_tasks(db: State<Db>, project_id: Option<i64>) -> CmdResult<Vec<Task>
             rows.collect::<rusqlite::Result<Vec<_>>>()?
         }
     };
+    // Her görevin atanan listesini doldur. Liste boşsa (eski kayıt) birincil
+    // assignee_id'ye düşeriz, böylece veri göçü gerekmez.
+    for t in tasks.iter_mut() {
+        let mut ids = task_assignees(&conn, t.id)?;
+        if ids.is_empty() {
+            if let Some(a) = t.assignee_id {
+                ids.push(a);
+            }
+        }
+        t.assignee_ids = ids;
+    }
     Ok(tasks)
 }
 
@@ -213,7 +233,7 @@ pub fn save_task(
     board_id: i64,
     title: String,
     description: Option<String>,
-    assignee_id: Option<i64>,
+    assignee_ids: Vec<i64>,
     due_at: Option<String>,
     credit: i64,
     priority: String,
@@ -221,23 +241,34 @@ pub fn save_task(
     let conn = db.0.lock().unwrap();
     let assigner: i64 =
         conn.query_row("SELECT id FROM users WHERE is_active=1 ORDER BY id LIMIT 1", [], |r| r.get(0))?;
-    match id {
+    // Birincil atanan = listenin ilki (geri uyumluluk: ilerleme, bildirim vb.).
+    let primary: Option<i64> = assignee_ids.first().copied();
+    let tid = match id {
         Some(tid) => {
             conn.execute(
                 "UPDATE tasks SET board_id=?1,title=?2,description=?3,assignee_id=?4,due_at=?5,credit=?6,priority=?7 WHERE id=?8",
-                params![board_id, title, description, assignee_id, due_at, credit, priority, tid],
+                params![board_id, title, description, primary, due_at, credit, priority, tid],
             )?;
-            Ok(tid)
+            tid
         }
         None => {
             conn.execute(
                 "INSERT INTO tasks (project_id,board_id,title,description,assignee_id,assigner_id,due_at,credit,priority) \
                  VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)",
-                params![project_id, board_id, title, description, assignee_id, assigner, due_at, credit, priority],
+                params![project_id, board_id, title, description, primary, assigner, due_at, credit, priority],
             )?;
-            Ok(conn.last_insert_rowid())
+            conn.last_insert_rowid()
         }
+    };
+    // Atanan listesini eşitle.
+    conn.execute("DELETE FROM task_assignees WHERE task_id=?1", [tid])?;
+    for uid in &assignee_ids {
+        conn.execute(
+            "INSERT OR IGNORE INTO task_assignees (task_id, user_id) VALUES (?1, ?2)",
+            params![tid, uid],
+        )?;
     }
+    Ok(tid)
 }
 
 #[tauri::command]

@@ -39,7 +39,7 @@ export function MyTasks() {
   );
   const allTasks = data?.[0] ?? [];
   const ctx: Ctx = { projects: data?.[1] ?? [], statuses: data?.[2] ?? [], users: data?.[3] ?? [] };
-  const my = user ? allTasks.filter((t) => t.assignee_id === user.id) : allTasks;
+  const my = user ? allTasks.filter((t) => t.assignee_ids.includes(user.id)) : allTasks;
 
   const [activeId, setActiveId] = useState<number | null>(null);
   const active = my.find((t) => t.id === activeId) ?? null;

@@ -65,6 +65,7 @@ pub struct Task {
     pub title: String,
     pub description: Option<String>,
     pub assignee_id: Option<i64>,
+    pub assignee_ids: Vec<i64>,
     pub assigner_id: Option<i64>,
     pub start_at: Option<String>,
     pub due_at: Option<String>,

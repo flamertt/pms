@@ -176,6 +176,7 @@ function t(
     title,
     description: null,
     assignee_id,
+    assignee_ids: [assignee_id],
     assigner_id,
     start_at: "2026-06-20",
     due_at: "2026-07-05",

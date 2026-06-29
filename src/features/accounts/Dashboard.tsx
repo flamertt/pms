@@ -30,7 +30,7 @@ export function Dashboard() {
   const onlineIds = data?.[3] ?? [];
   const activity = data?.[4] ?? [];
 
-  const myTasks = (user ? allTasks.filter((t) => t.assignee_id === user.id) : allTasks).slice(0, 5);
+  const myTasks = (user ? allTasks.filter((t) => t.assignee_ids.includes(user.id)) : allTasks).slice(0, 5);
   const projectById = (id: number) => projects.find((p) => p.id === id);
 
   // İstatistikler — gerçek veriden.
@@ -46,11 +46,13 @@ export function Dashboard() {
     const tasks = scope === "all" ? allTasks : allTasks.filter((t) => t.project_id === scope);
     const score = new Map<number, number>();
     tasks.filter((t) => t.board_id === 4).forEach((t) => {
-      if (t.assignee_id) score.set(t.assignee_id, (score.get(t.assignee_id) ?? 0) + t.credit);
+      t.assignee_ids.forEach((aid) => score.set(aid, (score.get(aid) ?? 0) + t.credit));
     });
     if (score.size < 3) {
       tasks.forEach((t) => {
-        if (t.assignee_id && !score.has(t.assignee_id)) score.set(t.assignee_id, t.credit);
+        t.assignee_ids.forEach((aid) => {
+          if (!score.has(aid)) score.set(aid, t.credit);
+        });
       });
     }
     return [...score.entries()]

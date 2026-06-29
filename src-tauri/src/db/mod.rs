@@ -138,6 +138,16 @@ fn seed(conn: &Connection) -> rusqlite::Result<()> {
                  VALUES (?1,?2,?3,?4,?5,'2026-07-05',?6,?7)",
                 rusqlite::params![first_pid, bid, title, uid(assignee_idx), owner, credit, prio],
             )?;
+            // Birincil atananı çoklu-atama tablosuna da yaz; bazılarına ikinci kişi ekle.
+            let tid = conn.last_insert_rowid();
+            conn.execute(
+                "INSERT OR IGNORE INTO task_assignees (task_id,user_id) VALUES (?1,?2)",
+                rusqlite::params![tid, uid(assignee_idx)],
+            )?;
+            conn.execute(
+                "INSERT OR IGNORE INTO task_assignees (task_id,user_id) VALUES (?1,?2)",
+                rusqlite::params![tid, uid((assignee_idx + 1) % ids.len())],
+            )?;
         }
     }
 

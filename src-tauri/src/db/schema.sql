@@ -113,6 +113,14 @@ CREATE TABLE IF NOT EXISTS tasks (
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Göreve atanan kişiler (M2M). Bir görev birden fazla kişiye atanabilir.
+-- assignee_id sütunu "birincil atanan" olarak korunur; bu tablo tam listeyi tutar.
+CREATE TABLE IF NOT EXISTS task_assignees (
+  task_id       INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY (task_id, user_id)
+);
+
 CREATE TABLE IF NOT EXISTS task_comments (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   task_id       INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
@@ -174,5 +182,7 @@ CREATE TABLE IF NOT EXISTS messages (
 
 CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_board ON tasks(board_id);
+CREATE INDEX IF NOT EXISTS idx_task_assignees_task ON task_assignees(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_assignees_user ON task_assignees(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_room ON messages(room_id);
 CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id);

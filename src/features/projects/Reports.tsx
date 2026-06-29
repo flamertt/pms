@@ -21,7 +21,7 @@ export function Reports() {
   // Çalışan bazında: yaptığı görevler + her görevin süresi + toplam süre.
   const byEmployee = all.users
     .map((u) => {
-      const ut = tasks.filter((t) => t.assignee_id === u.id);
+      const ut = tasks.filter((t) => t.assignee_ids.includes(u.id));
       const time = ut.reduce((s, t) => s + timers.seconds(t.id), 0);
       return { user: u, tasks: ut, time, credit: ut.reduce((s, t) => s + t.credit, 0) };
     })
@@ -42,7 +42,7 @@ export function Reports() {
   // Ekip katkısı: kişi başına tamamlanan kredi
   const contributors = all.users
     .map((u) => {
-      const ut = tasks.filter((t) => t.assignee_id === u.id);
+      const ut = tasks.filter((t) => t.assignee_ids.includes(u.id));
       return {
         user: u,
         tasks: ut.length,
@@ -61,7 +61,10 @@ export function Reports() {
       ...tasks.map((t) => [
         all.projects.find((p) => p.id === t.project_id)?.name ?? "",
         t.title,
-        all.users.find((u) => u.id === t.assignee_id)?.full_name ?? "",
+        t.assignee_ids
+          .map((aid) => all.users.find((u) => u.id === aid)?.full_name)
+          .filter(Boolean)
+          .join(", "),
         all.statuses.find((s) => s.id === t.board_id)?.name ?? "",
         String(t.credit),
         formatDuration(timers.seconds(t.id)),
