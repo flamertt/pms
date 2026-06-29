@@ -1,0 +1,338 @@
+/* =====================================================================
+   Proteus — Tasarım Sistemi / Design Tokens
+   Tüm renkler burada CSS değişkeni (custom property) olarak tanımlanır.
+   Bileşenler asla sabit hex kullanmaz; daima var(--token) kullanır.
+   Tema, <html data-theme="light|dark"> ile değiştirilir.
+   ===================================================================== */
+
+:root,
+:root[data-theme="light"] {
+  /* Yüzeyler */
+  --bg: #f1f1f5;
+  --surface: #ffffff;
+  --surface2: #f8f8fb;
+  --elevated: #ffffff;
+
+  /* Çizgiler */
+  --border: #d6d6e0;
+  --border-soft: #e6e6ee;
+
+  /* Metin */
+  --text: #15151c;
+  --muted: #54545f;
+  --faint: #7a7a88;
+
+  /* Vurgu / marka (mor gradient) */
+  --accent: #7c3aed;
+  --accent-strong: #6d28d9;
+  --accent-soft: rgba(124, 58, 237, 0.1);
+  --brand-grad: linear-gradient(135deg, #7c3aed, #a78bfa);
+
+  /* Durum renkleri */
+  --green: #1f9d63;
+  --amber: #cc8a2e;
+  --red: #d65149;
+  --blue: #3b7fd9;
+
+  --green-soft: rgba(31, 157, 99, 0.12);
+  --amber-soft: rgba(204, 138, 46, 0.12);
+  --red-soft: rgba(214, 81, 73, 0.12);
+  --blue-soft: rgba(59, 127, 217, 0.12);
+
+  --shadow-sm: 0 1px 3px rgba(20, 20, 40, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 20, 40, 0.08);
+  --shadow-lg: 0 12px 40px rgba(20, 20, 40, 0.14);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0c0c10;
+  --surface: #161620;
+  --surface2: #1a1a26;
+  --elevated: #1f1f2b;
+
+  --border: #2a2a37;
+  --border-soft: #23232f;
+
+  --text: #f3f3f7;
+  --muted: #b0b0be;
+  --faint: #8a8a98;
+
+  --accent: #a78bfa;
+  --accent-strong: #c4b5fd;
+  --accent-soft: rgba(167, 139, 250, 0.16);
+  --brand-grad: linear-gradient(135deg, #7c3aed, #a78bfa);
+
+  --green: #3cba7e;
+  --amber: #dba94f;
+  --red: #e8736b;
+  --blue: #5d97e8;
+
+  --green-soft: rgba(60, 186, 126, 0.16);
+  --amber-soft: rgba(219, 169, 79, 0.16);
+  --red-soft: rgba(232, 115, 107, 0.16);
+  --blue-soft: rgba(93, 151, 232, 0.16);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+}
+
+/* Ölçü / yarıçap / tipografi ölçek değişkenleri (temadan bağımsız) */
+:root {
+  --radius-sm: 6px;
+  --radius: 9px;
+  --radius-md: 11px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  --topbar-h: 62px;
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 70px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 22px;
+  --space-6: 30px;
+}
+
+/* =========================== Reset =========================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+}
+
+/* =========================== Yardımcı sınıflar =========================== */
+.muted {
+  color: var(--muted);
+}
+.faint {
+  color: var(--faint);
+}
+
+/* Kart */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Birincil buton */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+}
+.btn:hover {
+  border-color: var(--faint);
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+.btn-ghost:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+/* Form alanı */
+.field {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Rozet */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* Kart hover */
+.card-hover {
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--faint);
+}
+
+/* Responsive grid'ler */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1.85fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.grid-2-even {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.grid-2-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 1100px) {
+  .grid-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .grid-2-even {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .topbar-search {
+    width: 200px !important;
+  }
+}
+@media (max-width: 640px) {
+  .grid-stats {
+    grid-template-columns: 1fr;
+  }
+  .grid-2-form {
+    grid-template-columns: 1fr;
+  }
+  .topbar-search {
+    display: none !important;
+  }
+}
+
+/* Animasyonlar */
+/* Satır / nav hover */
+.row-hover {
+  transition: background 0.12s;
+}
+.row-hover:hover {
+  background: var(--surface2);
+}
+.nav-item:hover {
+  background: var(--accent-soft);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-in {
+  animation: fadeIn 0.22s ease both;
+}
