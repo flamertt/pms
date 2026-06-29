@@ -28,9 +28,7 @@ const PRIORITY: Record<string, { tone: "neutral" | "blue" | "amber" | "red"; lab
 };
 
 const descFor = (t: Task, projName?: string) =>
-  t.description ??
-  `${t.title} görevi ${projName ?? "—"} projesi kapsamında yürütülüyor. ` +
-    `Tahmini efor ${t.credit} kredi. Çalışmaya başlamak için süreyi başlat; ara verince durdur — süre arka planda işlemeye devam eder.`;
+  t.description ?? `${projName ?? "—"} · tahmini efor ${t.credit} kredi`;
 
 // "Görevli olduğum projeler" — kart tabanlı, tıklanınca detay + zamanlayıcı. DB'den yüklenir.
 export function MyTasks() {
@@ -79,17 +77,12 @@ export function MyTasks() {
                 {proj?.name}
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 10, borderTop: "1px solid var(--border-soft)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: "1px solid var(--border-soft)" }}>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: running ? "var(--accent)" : "var(--muted)", fontVariantNumeric: "tabular-nums" }}>
                   <IconClock size={15} /> {formatDuration(secs)}
+                  {running && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--accent)" }} />}
                 </span>
                 <div style={{ flex: 1 }} />
-                <button
-                  className={running ? "btn btn-sm" : "btn btn-primary btn-sm"}
-                  onClick={(e) => { e.stopPropagation(); running ? timers.stop(t.id) : timers.start(t.id); }}
-                >
-                  {running ? <><IconStop size={14} /> Durdur</> : <><IconPlay size={14} /> Başlat</>}
-                </button>
               </div>
             </div>
           );
@@ -158,7 +151,7 @@ function TaskDetail({ task, ctx, onChanged }: { task: Task; ctx: Ctx; onChanged:
       {/* Zamanlayıcı */}
       <div style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 12, padding: 18, textAlign: "center" }}>
         <div style={{ fontSize: 12, color: "var(--faint)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>
-          Çalışma Süresi {running && <span style={{ color: "var(--accent)" }}>• kaydediliyor</span>}
+          Çalışma Süresi
         </div>
         <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", fontVariantNumeric: "tabular-nums", color: running ? "var(--accent)" : "var(--text)" }}>
           {formatDuration(secs)}
@@ -170,9 +163,6 @@ function TaskDetail({ task, ctx, onChanged }: { task: Task; ctx: Ctx; onChanged:
             <button className="btn btn-primary" onClick={() => timers.start(task.id)}><IconPlay size={16} /> Başlat</button>
           )}
           <button className="btn" onClick={() => timers.reset(task.id)}><IconCheck size={16} /> Sıfırla</button>
-        </div>
-        <div style={{ fontSize: 11.5, color: "var(--faint)", marginTop: 12 }}>
-          Süre arka planda işler; başka sayfaya geçsen de saymaya devam eder.
         </div>
       </div>
     </div>

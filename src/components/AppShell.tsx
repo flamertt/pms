@@ -9,7 +9,6 @@ const TITLES: Record<string, [string, string]> = {
   "/projeler": ["Projeler", "Tüm projeleri yönet"],
   "/gorevlerim": ["Görevlerim", "Sana atanan görevler"],
   "/takvim": ["Takvim", "Zaman çizelgesi görünümü"],
-  "/agac": ["Proje Ağacı", "Proje hiyerarşisi"],
   "/kullanicilar": ["Kullanıcılar", "Ekip dizini"],
   "/sohbet": ["Sohbet", "Gerçek zamanlı mesajlaşma"],
   "/notlar": ["Notlarım", "Kişisel ve grup notları"],

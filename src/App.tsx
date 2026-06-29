@@ -18,7 +18,6 @@ import { ProjectsList } from "./features/projects/ProjectsList";
 import { KanbanBoard } from "./features/projects/KanbanBoard";
 import { MyTasks } from "./features/projects/MyTasks";
 import { CalendarView } from "./features/projects/CalendarView";
-import { ProjectTree } from "./features/projects/ProjectTree";
 import { Reports } from "./features/projects/Reports";
 
 import { Chat } from "./features/chat/Chat";
@@ -34,7 +33,6 @@ const router = createBrowserRouter([
       { path: "projeler/:id", element: <KanbanBoard /> },
       { path: "gorevlerim", element: <MyTasks /> },
       { path: "takvim", element: <CalendarView /> },
-      { path: "agac", element: <ProjectTree /> },
       { path: "kullanicilar", element: <Users /> },
       { path: "kullanicilar/:id", element: <EmployeeProfile /> },
       { path: "sohbet", element: <Chat /> },

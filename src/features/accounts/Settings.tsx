@@ -72,9 +72,6 @@ export function Settings() {
                   Kaldır
                 </button>
               )}
-              <div style={{ fontSize: 11.5, color: "var(--faint)", marginTop: 6 }}>
-                Kaydedince fotoğraf veritabanına yazılır.
-              </div>
             </div>
           </div>
           <div className="grid-2-form">

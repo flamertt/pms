@@ -61,18 +61,19 @@ fn seed(conn: &Connection) -> rusqlite::Result<()> {
         .query_row("SELECT id FROM roles WHERE name='Ekip Üyesi'", [], |r| r.get(0))
         .unwrap_or(2);
 
+    // (kullanıcı adı, e-posta, ad, ünvan, takım, telsiz, rol, şifre)
     let seed_users = [
-        ("admin", "admin@proteus.app", "Ahmet Yılmaz", "Proje Yöneticisi", "Yönetim", "TLS-101", admin_role),
-        ("elif", "elif@proteus.app", "Elif Demir", "Kıdemli Geliştirici", "Yazılım", "TLS-102", member_role),
-        ("mert", "mert@proteus.app", "Mert Kaya", "UI/UX Tasarımcı", "Tasarım", "TLS-103", member_role),
-        ("zeynep", "zeynep@proteus.app", "Zeynep Aydın", "Backend Geliştirici", "Yazılım", "TLS-104", member_role),
-        ("can", "can@proteus.app", "Can Öztürk", "QA Mühendisi", "Kalite", "TLS-105", member_role),
+        ("admin", "admin@proteus.app", "Ahmet Yılmaz", "Proje Yöneticisi", "Yönetim", "TLS-101", admin_role, "admin"),
+        ("elif", "elif@proteus.app", "Elif Demir", "Kıdemli Geliştirici", "Yazılım", "TLS-102", member_role, "1234"),
+        ("mert", "mert@proteus.app", "Mert Kaya", "UI/UX Tasarımcı", "Tasarım", "TLS-103", member_role, "1234"),
+        ("zeynep", "zeynep@proteus.app", "Zeynep Aydın", "Backend Geliştirici", "Yazılım", "TLS-104", member_role, "1234"),
+        ("can", "can@proteus.app", "Can Öztürk", "QA Mühendisi", "Kalite", "TLS-105", member_role, "1234"),
     ];
-    for (un, em, fn_, title, team, radio, role) in seed_users {
+    for (un, em, fn_, title, team, radio, role, pass) in seed_users {
         conn.execute(
             "INSERT OR IGNORE INTO users (username,email,password_hash,full_name,title,team,radio_no,role_id,is_active) \
-             VALUES (?1,?2,'changeme',?3,?4,?5,?6,?7,1)",
-            rusqlite::params![un, em, fn_, title, team, radio, role],
+             VALUES (?1,?2,?8,?3,?4,?5,?6,?7,1)",
+            rusqlite::params![un, em, fn_, title, team, radio, role, pass],
         )?;
     }
 

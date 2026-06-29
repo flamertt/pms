@@ -57,7 +57,7 @@ export function Users() {
   const remove = async (u: User) => {
     const ok = await confirm({
       title: "Kullanıcıyı sil",
-      message: `${u.full_name} kalıcı olarak silinecek. Bu işlem geri alınamaz.`,
+      message: `${u.full_name} silinecek.`,
     });
     if (!ok) return;
     await api.deleteUser(u.id);

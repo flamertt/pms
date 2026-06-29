@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Avatar, Badge, PageHeader, BackButton } from "../../components/ui";
 import { Modal, Labeled } from "../../components/Modal";
-import { IconPlus, IconClock, IconPaperclip } from "../../icons";
+import { TreeView } from "./TreeView";
+import { IconPlus, IconClock, IconPaperclip, IconProjects, IconTree } from "../../icons";
 import { api } from "../../lib/api";
 import { useData } from "../../lib/useData";
 import { useAuth } from "../../lib/auth";
@@ -40,6 +41,7 @@ export function KanbanBoard() {
   const [dragId, setDragId] = useState<number | null>(null);
 
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"kanban" | "agac">("kanban");
   const [form, setForm] = useState({
     title: "",
     board_id: 1,
@@ -95,22 +97,46 @@ export function KanbanBoard() {
       <BackButton to="/projeler" label="Projeler" />
       <PageHeader
         title={project.name}
-        subtitle="Kanban panosu — görevleri sürükleyip bırakın"
+        subtitle={view === "kanban" ? "Kanban panosu — görevleri sürükleyip bırakın" : "Proje ağacı görünümü"}
         actions={
-          <button className="btn btn-primary" onClick={() => setOpen(true)}>
-            <IconPlus size={16} /> Görev Ekle
-          </button>
+          <>
+            <div style={{ display: "flex", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 10, padding: 3 }}>
+              <button
+                className={view === "kanban" ? "btn btn-primary btn-sm" : "btn-ghost btn-sm"}
+                onClick={() => setView("kanban")}
+                style={{ borderRadius: 7 }}
+              >
+                <IconProjects size={15} /> Kanban
+              </button>
+              <button
+                className={view === "agac" ? "btn btn-primary btn-sm" : "btn-ghost btn-sm"}
+                onClick={() => setView("agac")}
+                style={{ borderRadius: 7 }}
+              >
+                <IconTree size={15} /> Ağaç
+              </button>
+            </div>
+            {view === "kanban" && (
+              <button className="btn btn-primary" onClick={() => setOpen(true)}>
+                <IconPlus size={16} /> Görev Ekle
+              </button>
+            )}
+          </>
         }
       />
+
+      {view === "agac" ? (
+        <TreeView projectId={projectId} projects={projects} statuses={statuses} tasks={tasks} />
+      ) : (
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${statuses.length},minmax(260px,1fr))`, gap: 14, alignItems: "start" }}>
         {statuses.map((st) => {
           const colTasks = tasks.filter((t) => t.board_id === st.id);
           return (
             <div
               key={st.id}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDrop(st.id)}
-              style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 14, padding: 10, minHeight: 200 }}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+              onDrop={(e) => { e.preventDefault(); onDrop(st.id); }}
+              style={{ background: dragId != null ? "var(--accent-soft)" : "var(--surface2)", border: "1px solid var(--border)", borderRadius: 14, padding: 10, minHeight: 200, transition: "background .12s" }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px 12px" }}>
                 <span style={{ width: 9, height: 9, borderRadius: "50%", background: st.color }} />
@@ -126,9 +152,10 @@ export function KanbanBoard() {
                     <div
                       key={t.id}
                       draggable
-                      onDragStart={() => setDragId(t.id)}
+                      onDragStart={(e) => { setDragId(t.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(t.id)); }}
+                      onDragEnd={() => setDragId(null)}
                       className="card"
-                      style={{ padding: 13, cursor: "grab", boxShadow: dragId === t.id ? "var(--shadow-lg)" : "var(--shadow-sm)" }}
+                      style={{ padding: 13, cursor: "grab", opacity: dragId === t.id ? 0.5 : 1, boxShadow: dragId === t.id ? "var(--shadow-lg)" : "var(--shadow-sm)" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 9 }}>
                         <Badge tone={pr.tone}>{pr.label}</Badge>
@@ -163,6 +190,7 @@ export function KanbanBoard() {
           );
         })}
       </div>
+      )}
 
       <Modal
         open={open}
